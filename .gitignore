@@ -1,0 +1,13 @@
+.gradle/
+.idea/
+reports/
+build/
+.classpath
+.project
+.settings/
+bin/
+*.iml
+*.ipr
+*.iws
+*.log
+.vscode

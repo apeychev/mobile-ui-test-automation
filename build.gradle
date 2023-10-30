@@ -1,0 +1,81 @@
+
+
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+}
+
+java {
+    //Set Java version '-source release' and '-target release' in javac
+    sourceCompatibility = 17
+    targetCompatibility = 17
+}
+
+repositories {
+    mavenCentral()
+}
+
+// Always use the --stacktrace (-s) option for better troubleshooting
+gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
+
+ext {
+    junitJupiterVersion = '5.9.2'
+    junitPlatformSuiteVersion = '1.9.2'
+    cucumberBomVersion = '7.12.1'
+}
+
+dependencies {
+    implementation("org.seleniumhq.selenium:selenium-java:4.10.0")
+    implementation("io.github.bonigarcia:webdrivermanager:5.4.0")
+    implementation("jakarta.ws.rs:jakarta.ws.rs-api:3.1.0")
+
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    testImplementation "org.junit.platform:junit-platform-suite:$junitPlatformSuiteVersion"    
+    
+    testImplementation(
+            platform("io.cucumber:cucumber-bom:$cucumberBomVersion"),
+            "io.cucumber:cucumber-java",
+            "io.cucumber:cucumber-core",
+            "io.cucumber:datatable",
+            "io.cucumber:cucumber-junit-platform-engine",
+            "io.cucumber:tag-expressions",
+            "io.cucumber:gherkin",
+            "io.cucumber:cucumber-expressions",
+            "io.cucumber:cucumber-picocontainer",
+            "io.cucumber:cucumber-jvm-deps:1.0.6",
+            "io.cucumber:cucumber-html:0.2.7"
+            )
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+test {
+    useJUnitPlatform ()
+    systemProperty("cucumber.junit-platform.naming-strategy", "long")
+    
+    // pass relevant mobile test java system properties to the unit tests
+    println "mobile test system properties"
+    println "-----------------------------"
+    System.getProperties().findAll{ it.key.startsWith("mobile") }.each {
+         if (!it.key.endsWith("password")) {
+            println "key: $it.key value: $it.value" 
+         }
+		
+		systemProperty it.key, it.value    	
+	}
+	println "-----------------------------"
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
+
+
